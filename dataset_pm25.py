@@ -8,7 +8,7 @@ import torch
 class PM25_Dataset(Dataset):
     def __init__(self, eval_length=36, target_dim=36, mode="train", validindex=0):
         self.eval_length = eval_length
-        self.target_dim = target_dim
+        self.target_dim = target_dim # 其实是36个站点的数据
 
         path = "./data/pm25/pm25_meanstd.pk"
         with open(path, "rb") as f:
