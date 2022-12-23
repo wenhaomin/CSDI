@@ -27,7 +27,7 @@ def train(
     for epoch_no in range(config["epochs"]):
         avg_loss = 0
         model.train()
-        with tqdm(train_loader, mininterval=5.0, maxinterval=50.0) as it:
+        with tqdm(train_loader, mininterval=5.0, maxinterval=50.0) as it: #mininterval 信息更新的最短时间；
             for batch_no, train_batch in enumerate(it, start=1):
                 optimizer.zero_grad()
 

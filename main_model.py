@@ -71,7 +71,7 @@ class CSDI_base(nn.Module):
             rand_mask = self.get_randmask(observed_mask)
 
         cond_mask = observed_mask.clone()
-        for i in range(len(cond_mask)):
+        for i in range(len(cond_mask)): # 循环一个batch中每个样本；
             mask_choice = np.random.rand()
             if self.target_strategy == "mix" and mask_choice > 0.5:
                 cond_mask[i] = rand_mask[i]
@@ -112,7 +112,8 @@ class CSDI_base(nn.Module):
     def calc_loss(
         self, observed_data, cond_mask, observed_mask, side_info, is_train, set_t=-1
     ):
-        B, K, L = observed_data.shape
+        # B, K, L
+        B, K, L = observed_data.shape 
         if is_train != 1:  # for validation
             t = (torch.ones(B) * set_t).long().to(self.device)
         else:
@@ -121,9 +122,9 @@ class CSDI_base(nn.Module):
         noise = torch.randn_like(observed_data)
         noisy_data = (current_alpha ** 0.5) * observed_data + (1.0 - current_alpha) ** 0.5 * noise
 
-        total_input = self.set_input_to_diffmodel(noisy_data, observed_data, cond_mask)
+        total_input = self.set_input_to_diffmodel(noisy_data, observed_data, cond_mask)#
 
-        predicted = self.diffmodel(total_input, side_info, t)  # (B,K,L)
+        predicted = self.diffmodel(total_input, side_info, t)  # (B,K,L) # sideinformation中包含了mask的信息。
 
         target_mask = observed_mask - cond_mask
         residual = (noise - predicted) * target_mask
@@ -239,12 +240,13 @@ class CSDI_PM25(CSDI_base):
         observed_tp = batch["timepoints"].to(self.device).float()
         gt_mask = batch["gt_mask"].to(self.device).float()
         cut_length = batch["cut_length"].to(self.device).long()
-        for_pattern_mask = batch["hist_mask"].to(self.device).float()
+        for_pattern_mask = batch["hist_mask"].to(self.device).float() # for_pattern_mask, for historical data
 
-        observed_data = observed_data.permute(0, 2, 1)
-        observed_mask = observed_mask.permute(0, 2, 1)
-        gt_mask = gt_mask.permute(0, 2, 1)
-        for_pattern_mask = for_pattern_mask.permute(0, 2, 1)
+        observed_data = observed_data.permute(0, 2, 1) # ()
+        observed_mask = observed_mask.permute(0, 2, 1) # ()
+        gt_mask = gt_mask.permute(0, 2, 1) # ()
+        for_pattern_mask = for_pattern_mask.permute(0, 2, 1) # ()
+        
 
         return (
             observed_data,

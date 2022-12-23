@@ -8,20 +8,21 @@ import torch
 class PM25_Dataset(Dataset):
     def __init__(self, eval_length=36, target_dim=36, mode="train", validindex=0):
         self.eval_length = eval_length
-        self.target_dim = target_dim # 其实是36个站点的数据
+        self.target_dim = target_dim  # 其实是36个站点的数据
 
         path = "./data/pm25/pm25_meanstd.pk"
         with open(path, "rb") as f:
-            self.train_mean, self.train_std = pickle.load(f)
+            self.train_mean, self.train_std = pickle.load(
+                f)  # 这里读取的是train上面的mean 和std，但是其实可以直接去计算的；
         if mode == "train":
             month_list = [1, 2, 4, 5, 7, 8, 10, 11]
             # 1st,4th,7th,10th months are excluded from histmask (since the months are used for creating missing patterns in test dataset)
-            flag_for_histmask = [0, 1, 0, 1, 0, 1, 0, 1] 
+            flag_for_histmask = [0, 1, 0, 1, 0, 1, 0, 1]
             month_list.pop(validindex)
             flag_for_histmask.pop(validindex)
         elif mode == "valid":
             month_list = [1, 2, 4, 5, 7, 8, 10, 11]
-            month_list = month_list[validindex : validindex + 1]
+            month_list = month_list[validindex: validindex + 1]
         elif mode == "test":
             month_list = [3, 6, 9, 12]
         self.month_list = month_list
@@ -31,7 +32,8 @@ class PM25_Dataset(Dataset):
         self.observed_mask = []  # masks (separated into each month)
         self.gt_mask = []  # ground-truth masks (separated into each month)
         self.index_month = []  # indicate month
-        self.position_in_month = []  # indicate the start position in month (length is the same as index_month)
+        # indicate the start position in month (length is the same as index_month)
+        self.position_in_month = []
         self.valid_for_histmask = []  # whether the sample is used for histmask
         self.use_index = []  # to separate train/valid/test
         self.cut_length = []  # excluded from evaluation targets
@@ -57,7 +59,7 @@ class PM25_Dataset(Dataset):
             if mode == "train":
                 self.valid_for_histmask += np.array(
                     [flag_for_histmask[i]] * current_length
-                ).tolist()
+                ).tolist() # 对应月份的数据，哪些是要进行histmask的
 
             # mask values for observed indices are 1
             c_mask = 1 - current_df.isnull().values
@@ -78,9 +80,11 @@ class PM25_Dataset(Dataset):
                 )
                 self.use_index += c_index.tolist()
                 self.cut_length += [0] * len(c_index)
-                if len(current_df) % eval_length != 0:  # avoid double-count for the last time-series
+                # avoid double-count for the last time-series
+                if len(current_df) % eval_length != 0:
                     self.use_index += [len(self.index_month) - 1]
-                    self.cut_length += [eval_length - len(current_df) % eval_length]
+                    self.cut_length += [eval_length -
+                                        len(current_df) % eval_length]
 
         if mode != "test":
             self.use_index = np.arange(len(self.index_month))
@@ -93,7 +97,7 @@ class PM25_Dataset(Dataset):
             self.index_month_histmask = []
             self.position_in_month_histmask = []
 
-            for i in range(len(self.index_month)):
+            for i in range(len(self.index_month)): #在循环每个样本
                 while True:
                     ind += 1
                     if ind == len(self.index_month):
@@ -104,28 +108,28 @@ class PM25_Dataset(Dataset):
                             self.position_in_month[ind]
                         )
                         break
-        else:  # dummy (histmask is only used for training)
+        else:  # dummy (histmask is only used for training) # 这里是没有用到的；
             self.index_month_histmask = self.index_month
             self.position_in_month_histmask = self.position_in_month
 
     def __getitem__(self, org_index):
-        index = self.use_index[org_index]
-        c_month = self.index_month[index]
+        index = self.use_index[org_index] #第几个样本
+        c_month = self.index_month[index] 
         c_index = self.position_in_month[index]
         hist_month = self.index_month_histmask[index]
         hist_index = self.position_in_month_histmask[index]
         s = {
             "observed_data": self.observed_data[c_month][
-                c_index : c_index + self.eval_length
+                c_index: c_index + self.eval_length
             ],
             "observed_mask": self.observed_mask[c_month][
-                c_index : c_index + self.eval_length
+                c_index: c_index + self.eval_length
             ],
             "gt_mask": self.gt_mask[c_month][
-                c_index : c_index + self.eval_length
+                c_index: c_index + self.eval_length
             ],
             "hist_mask": self.observed_mask[hist_month][
-                hist_index : hist_index + self.eval_length
+                hist_index: hist_index + self.eval_length
             ],
             "timepoints": np.arange(self.eval_length),
             "cut_length": self.cut_length[org_index],
@@ -151,7 +155,7 @@ def get_dataloader(batch_size, device, validindex=0):
         dataset_valid, batch_size=batch_size, num_workers=1, shuffle=False
     )
 
-    scaler = torch.from_numpy(dataset.train_std).to(device).float()
+    scaler = torch.from_numpy(dataset.train_std).to(device).float()  # 方差
     mean_scaler = torch.from_numpy(dataset.train_mean).to(device).float()
 
     return train_loader, valid_loader, test_loader, scaler, mean_scaler
