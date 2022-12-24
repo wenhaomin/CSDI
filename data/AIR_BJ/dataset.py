@@ -43,7 +43,7 @@ class CleanDataset():
 
         V = config.data.num_vertices
         data = np.random.randn(1000, V, 1)
-        self.label, self.feture = data, data
+        self.label, self.feature = data, data
         self.adj = np.random.randn(V, V)
         #self.adj = np.load(config.data.spatial)
         #self.label, self.feature = self.read_data()
@@ -182,10 +182,22 @@ def default_config(data='PEMS08'):
         config.data.points_per_hour = 12
         config.data.val_start_idx = int(1000 * 0.6)
         config.data.test_start_idx = int(1000 * 0.8)
+    
+    config.model = edict()
+    config.model.T_p = config.model.T_h =12
+    config.model.V = config.data.num_vertices
+    config.model.F = config.data.num_features
+    config.model.week_len = 7
+    config.model.day_len = config.data.points_per_hour * 24
+    #config.model.device = device
+
     return config
 if __name__ == '__main__':
     from easydict import EasyDict as edict
     config = default_config('AIR_BJ')
     clean_data = CleanDataset(config)
+
+    train_dataset = TrafficDataset(clean_data, (0 + config.model.T_p, config.data.val_start_idx - config.model.T_p + 1), config)
+    #train_loader = torch.utils.data.DataLoader(train_dataset, config.batch_size, shuffle=True, pin_memory=True)
         
         
