@@ -111,6 +111,20 @@ class TrafficDataset(Dataset):
         self.idx_lst = self.get_idx_lst()
         print('sample num:', len(self.idx_lst))
 
+    # def __getitem__(self, index):
+
+    #     recent_idx = self.idx_lst[index]
+
+    #     start, end = recent_idx[1][0], recent_idx[1][1]
+    #     label = self.label[start:end]
+
+    #     start, end = recent_idx[0][0], recent_idx[0][1]
+    #     node_feature = self.feature[start:end]
+    #     pos_w, pos_d = self.get_time_pos(start)
+    #     pos_w = np.array(pos_w, dtype=np.int32)
+    #     pos_d = np.array(pos_d, dtype=np.int32)
+    #     return label, node_feature, pos_w, pos_d
+
     def __getitem__(self, index):
 
         recent_idx = self.idx_lst[index]
@@ -123,7 +137,17 @@ class TrafficDataset(Dataset):
         pos_w, pos_d = self.get_time_pos(start)
         pos_w = np.array(pos_w, dtype=np.int32)
         pos_d = np.array(pos_d, dtype=np.int32)
-        return label, node_feature, pos_w, pos_d
+
+        his, fut = node_feature, label
+        s = {}
+        s['observed_data'] = np.concatenate([his, fut], axis=0)
+        s['observed_mask'] = np.concatenate([np.ones_like(his), np.zeros_like(fut)], axis=0)
+        s['gt_mask'] = np.concatenate([np.ones_like(his), np.ones_like(fut)], axis=0)
+        s['hist_mask']  = -1 # do not need hist mask
+        s['timepoints'] = np.arange(self.T_h + self.T_p)
+        s['cut_length'] = -1
+        
+        return s
 
     def __len__(self):
         return len(self.idx_lst)
@@ -190,14 +214,20 @@ def default_config(data='PEMS08'):
     config.model.week_len = 7
     config.model.day_len = config.data.points_per_hour * 24
     #config.model.device = device
-
+    
+    config.batch_size = 8
     return config
 if __name__ == '__main__':
     from easydict import EasyDict as edict
+    import torch
     config = default_config('AIR_BJ')
     clean_data = CleanDataset(config)
 
     train_dataset = TrafficDataset(clean_data, (0 + config.model.T_p, config.data.val_start_idx - config.model.T_p + 1), config)
-    #train_loader = torch.utils.data.DataLoader(train_dataset, config.batch_size, shuffle=True, pin_memory=True)
+    train_loader = torch.utils.data.DataLoader(train_dataset, config.batch_size, shuffle=True, pin_memory=True)
+
+    for batch in train_loader:
+        print(batch)
+        break
         
         
