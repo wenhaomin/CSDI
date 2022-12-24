@@ -155,7 +155,10 @@ def get_dataloader(batch_size, device, validindex=0):
         dataset_valid, batch_size=batch_size, num_workers=1, shuffle=False
     )
 
-    scaler = torch.from_numpy(dataset.train_std).to(device).float()  # 方差
+    scaler = torch.from_numpy(dataset.train_std).to(device).float()  # 方差, 给每一个站点都有一个均值和方差
+    # print('train:',len(dataset.train_std))
+
     mean_scaler = torch.from_numpy(dataset.train_mean).to(device).float()
+    # print('train mean:', dataset_test.train_mean)
 
     return train_loader, valid_loader, test_loader, scaler, mean_scaler

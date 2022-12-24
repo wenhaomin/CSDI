@@ -4,6 +4,17 @@ from torch.optim import Adam
 from tqdm import tqdm
 import pickle
 
+import os
+import torch
+def get_workspace():
+    """
+    get the workspace path, i.e., the root directory of the project
+    """
+    cur_path = os.path.abspath(__file__)
+    file = os.path.dirname(cur_path)
+    # file = os.path.dirname(file)
+    return file
+ws =  get_workspace()
 
 def train(
     model,
