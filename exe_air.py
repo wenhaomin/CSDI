@@ -12,10 +12,10 @@ from utils import train, evaluate
 
 parser = argparse.ArgumentParser(description="CSDI")
 parser.add_argument("--config", type=str, default="base.yaml")
-parser.add_argument('--device', default='cuda:0', help='Device for Attack')
+parser.add_argument('--device', default='cuda:8', help='Device for Attack')
 parser.add_argument("--modelfolder", type=str, default="")
 parser.add_argument(
-    "--targetstrategy", type=str, default="random", choices=["mix", "random", "historical"]
+    "--targetstrategy", type=str, default="predict", choices=["mix", "random", "historical","predict"]
 )
 parser.add_argument(
     "--validationindex", type=int, default=0, help="index of month used for validation (value:[0-7])" #难道要使用交叉验证的方式？

@@ -21,7 +21,7 @@ def train(
     config,
     train_loader,
     valid_loader=None,
-    valid_epoch_interval=5,
+    valid_epoch_interval=1,
     foldername="",
 ):
     optimizer = Adam(model.parameters(), lr=config["lr"], weight_decay=1e-6)

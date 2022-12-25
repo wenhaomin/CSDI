@@ -146,13 +146,17 @@ class TrafficDataset(Dataset):
 
         his, fut = node_feature.squeeze(-1), label.squeeze(-1)
         s = {}
-        s['observed_data'] = np.concatenate([his, fut], axis=0)
-        s['observed_mask'] = np.concatenate([np.ones_like(his), np.zeros_like(fut)], axis=0)
-        s['gt_mask'] = np.concatenate([np.ones_like(his), np.ones_like(fut)], axis=0)
-        s['hist_mask']  = s['observed_mask'] # do not need hist mask
+
+        observed_mask = np.concatenate([np.ones_like(his), np.ones_like(fut)], axis=0)
+        gt_mask = np.concatenate([np.ones_like(his), np.zeros_like(fut)], axis=0) # 缺失的值
+        s['observed_data'] = np.concatenate([his, fut], axis=0) * observed_mask
+        s['observed_mask'] = observed_mask
+        s['gt_mask'] = gt_mask
+        s['hist_mask']  = gt_mask # do not need hist mask
         s['timepoints'] = np.arange(self.T_h + self.T_p)
         s['cut_length'] = -1
-        
+
+        # observed_mask, 和 gt_mask中观察到的值都是1，注意, gt_mask是读的missing value的值；
         return s
 
     def __len__(self):

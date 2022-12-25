@@ -11,7 +11,7 @@ from utils import train, evaluate
 
 parser = argparse.ArgumentParser(description="CSDI")
 parser.add_argument("--config", type=str, default="base.yaml")
-parser.add_argument('--device', default='cpu', help='Device for Attack')
+parser.add_argument('--device', default='cuda:6', help='Device for Attack')
 parser.add_argument("--modelfolder", type=str, default="")
 parser.add_argument(
     "--targetstrategy", type=str, default="mix", choices=["mix", "random", "historical"]
