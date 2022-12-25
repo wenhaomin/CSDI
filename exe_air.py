@@ -13,7 +13,7 @@ from utils import train, evaluate
 parser = argparse.ArgumentParser(description="CSDI")
 parser.add_argument("--config", type=str, default="base.yaml")
 parser.add_argument('--device', default='cuda:8', help='Device for Attack')
-parser.add_argument("--modelfolder", type=str, default="")
+parser.add_argument("--modelfolder", type=str, default="pm25_validationindex0_20221225_134113/")
 parser.add_argument(
     "--targetstrategy", type=str, default="predict", choices=["mix", "random", "historical","predict"]
 )
@@ -61,6 +61,7 @@ if args.modelfolder == "":
 else:
     model.load_state_dict(torch.load("./save/" + args.modelfolder + "/model.pth"))
 
+print('begin evaluate')
 evaluate(
     model,
     test_loader,
