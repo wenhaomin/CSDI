@@ -124,7 +124,6 @@ def evaluate(model, test_loader, nsample=100, scaler=1, mean_scaler=0, foldernam
         all_generated_samples = []
         with tqdm(test_loader, mininterval=5.0, maxinterval=50.0) as it:
             for batch_no, test_batch in enumerate(it, start=1):
-                print('batch_no',batch_no)
                 output = model.evaluate(test_batch, nsample)
 
                 samples, c_target, eval_points, observed_points, observed_time = output

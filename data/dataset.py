@@ -242,7 +242,7 @@ def get_dataloader(batch_size, device, validindex=0):
 
     test_dataset = TrafficDataset(clean_data, (config.data.test_start_idx + config.model.T_p, -1), config)
     # test_dataset = TrafficDataset(clean_data, (config.data.test_start_idx + config.model.T_p, config.data.test_start_idx + config.model.T_p + 512), config)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size, shuffle=False)
+    test_loader = torch.utils.data.DataLoader(test_dataset, 512, shuffle=False)
 
     scaler =  torch.Tensor([clean_data.std] * config.data.num_vertices).to(device).float()
     mean_scaler = torch.Tensor([clean_data.mean] * config.data.num_vertices).to(device).float()
