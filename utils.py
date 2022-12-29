@@ -93,6 +93,11 @@ def calc_denominator(target, eval_points):
 
 
 def calc_quantile_CRPS(target, forecast, eval_points, mean_scaler, scaler):
+    """
+    target: (B, T, V),
+    forecast: (B, n_sample, T, V)
+    eval_points: (B, T, V): which values should be evaluated,
+    """
     target = target * scaler + mean_scaler
     forecast = forecast * scaler + mean_scaler
 

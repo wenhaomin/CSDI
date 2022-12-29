@@ -41,6 +41,7 @@ foldername = (
 )
 
 print('model folder:', foldername)
+[][1]
 os.makedirs(foldername, exist_ok=True)
 with open(foldername + "config.json", "w") as f:
     json.dump(config, f, indent=4)
@@ -71,7 +72,7 @@ print('begin evaluate')
 #     foldername=foldername,
 # )
 
-for n_sample in [20, 25, 30, 40]:
+for n_sample in [10, 25, 30, 40]:
     print('[n_sample]:', n_sample)
     evaluate(
         model,
